@@ -5,6 +5,10 @@
 #include "endian.h"
 
 #define min(a, b) ((a) > (b) ? (b) : (a))
+/* extract n bits starting from position p from value v */
+#define bits(v, p, n) (((v) >> (p)) & ((1 << (n)) - 1))
+/* extract bit from position p from value v */
+#define bit(v, p) bits((v), (p), 1)
 
 
 /* references:
@@ -62,29 +66,42 @@ int lzo_decompress(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen)
             }
         }
 
-        uint32_t count = 0;
+        uint32_t length = 0;
+        uint16_t follow = 0;
         ptrdiff_t distance = 0;
+        /* general notation for following formats:
+         * L: length bits
+         * D: distance bits
+         * S: state bits
+         */
         if (instr >= 64) {
+            /* format: L L L D D D S S;
+             * follow: D D D D D D D D */
             p++;
-            count = (instr >> 5) + 1;
-            distance = 1 + ((instr >> 2) & 7) + (*p++ << 3);
-            state = instr & 3;
+            length = bits(instr, 5, 3) + 1;
+            follow = *p++;
+            distance = (follow << 3) + bits(instr, 2, 3) + 1;
+            state = bits(instr, 0, 2);
         } else if (instr >= 32) {
-            /* back up and parse length properly */
-            count = lzo_parse_length(&p, 5) + 2;
-            distance = 1 + (le16toh(*(const uint16_t *)p) >> 2);
-            state = le16toh(*(const uint16_t *)p) & 3;
+            /* format: 0 0 1 L L L L L;
+             * follow: D D D D D D D D D D D D D D S S */
+            length = lzo_parse_length(&p, 5) + 2;
+            follow = le16toh(*(const uint16_t *)p);
+            distance = (follow >> 2) + 1;
+            state = bits(follow, 0, 2);
             p += 2;
         } else if (instr >= 16) {
-            /* back up and parse length properly */
-            count = lzo_parse_length(&p, 3) + 2;
-            distance = ((instr & 8) << 11) + 0x4000 + (le16toh(*(const uint16_t *)p) >> 2);
-            state = le16toh(*(const uint16_t *)p) & 3;
+            /* format: 0 0 0 1 D L L L;
+             * follow: D D D D D D D D D D D D D D S S */
+            length = lzo_parse_length(&p, 3) + 2;
+            follow = le16toh(*(const uint16_t *)p);
+            distance = (bit(instr, 3) << 14) + (follow >> 2) + 0x4000;
+            state = bits(follow, 0, 2);
             p += 2;
         } else if (!state) {
             /* back up and parse length properly */
-            count = lzo_parse_length(&p, 4) + 3;
-            lzo_copy(&op, &p, count);
+            length = lzo_parse_length(&p, 4) + 3;
+            lzo_copy(&op, &p, length);
             state = 4;
             continue;
         } else {
@@ -92,9 +109,9 @@ int lzo_decompress(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen)
             return -1;
         }
 
-        count = min(count, oend - op);
-        if (count)
-            lzo_copy_distance(&op, distance, count);
+        length = min(length, oend - op);
+        if (length)
+            lzo_copy_distance(&op, distance, length);
         if (state > 0 && state < 4)
             lzo_copy(&op, &p, state);
     }
