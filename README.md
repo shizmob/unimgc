@@ -18,7 +18,7 @@ with a few derivations making the bitstreams incompatible:
 
 * Initial byte encoding affects state differently;
 * For instructions ` 0 <= x <= 15` are only defined if the current state is `0`;
-* For instructions `16 <= x <= 32`, a different shift value for `H` is used;
+* Instructions `64 <= x <= 127` use a different length addition (`1` versus `3`);
 * Instructions `128 <= x <= 255` get dropped and treated as `64 <= x <= 127` instead;
 
 ## Usage
