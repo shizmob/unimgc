@@ -37,7 +37,7 @@ static inline void lzo_copy(uint8_t **out, const uint8_t **in, size_t n)
 
 static inline void lzo_copy_distance(uint8_t **out, ptrdiff_t dist, size_t n)
 {
-    /* interestingly, memmove() does *not* work here, at least on maCOS */
+    /* interestingly, memmove() does *not* work here, at least on macOS */
     uint8_t *p = *out;
     const uint8_t *in = p - dist;
     while (n--)
@@ -78,7 +78,7 @@ int lzo_decompress(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen)
         } else if (instr >= 16) {
             /* back up and parse length properly */
             count = lzo_parse_length(&p, 3) + 2;
-            distance = (instr & 8 << 11) + 0x4000 + (le16toh(*(const uint16_t *)p) >> 2);
+            distance = ((instr & 8) << 11) + 0x4000 + (le16toh(*(const uint16_t *)p) >> 2);
             state = le16toh(*(const uint16_t *)p) & 3;
             p += 2;
         } else if (!state) {
