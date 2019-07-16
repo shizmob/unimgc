@@ -10,7 +10,8 @@
 #include "endian.h"
 #include "image.h"
 
-#define VERSION "0.1.0"
+#define UNIMGC_VERSION "0.1"
+
 
 enum unimgc_error {
     UNIMGC_ERROR_NONE = 0,
@@ -31,10 +32,6 @@ static void fatal(enum unimgc_error code, const char *msg, ...)
     exit(code);
 }
 
-static struct {
-    int only_info;
-    int verbose;
-} options;
 
 static double si_ify(uint64_t n, char *u)
 {
@@ -70,7 +67,6 @@ static void dump_header(struct imgc_header *hdr)
     fprintf(stderr, "  unk3: %02" PRIx8 "\n",  hdr->image.unk3);
 }
 
-
 static void dump_block_header(struct imgc_block_header *bhdr, size_t pos)
 {
     fprintf(stderr, "block @ 0x%zx\n", pos);
@@ -78,6 +74,12 @@ static void dump_block_header(struct imgc_block_header *bhdr, size_t pos)
     fprintf(stderr, "  size: %u\n", bhdr->size);
 }
 
+
+
+static struct {
+    int only_info;
+    int verbose;
+} options;
 
 static void unimgc_data(struct imgc_header *hdr, FILE *in, FILE *out)
 {
@@ -161,7 +163,7 @@ static void unimgc_data(struct imgc_header *hdr, FILE *in, FILE *out)
         fputc('\n', stderr);
 }
 
-static void unimgc_header(struct imgc_header *hdr, FILE *in, FILE *out)
+static void unimgc_header(struct imgc_header *hdr, FILE *in)
 {
     uint8_t hbuf[IMGC_HEADER_SIZE];
     fread(hbuf, 1, sizeof(hbuf), in);
@@ -205,7 +207,7 @@ int main(int argc, char **argv)
             options.verbose++;
             break;
         case 'V':
-            printf("unimgc v%s\n", VERSION);
+            printf("unimgc v%s\n", UNIMGC_VERSION);
             puts("copyright (c) 2019 shiz; released under the WTFPL");
             exit(0);
             break;
@@ -231,7 +233,7 @@ int main(int argc, char **argv)
 
     /* do the boogie */
     struct imgc_header hdr;
-    unimgc_header(&hdr, in, out);
+    unimgc_header(&hdr, in);
     if (!options.only_info)
         unimgc_data(&hdr, in, out);
 }

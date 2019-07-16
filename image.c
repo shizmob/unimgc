@@ -20,10 +20,10 @@ int pascal_from_data(struct pascal_str *p, const char *d, size_t len)
     return 1;
 }
 
-/* initialize pascal string from C string contents */
+/* initialize owned pascal string from C string contents */
 int pascal_from_cstr(struct pascal_str *p, const char *s)
 {
-    int len = strlen(s);
+    size_t len = strlen(s);
     if (len > 0xFF)
         /* too big */
         return 0;
@@ -31,36 +31,9 @@ int pascal_from_cstr(struct pascal_str *p, const char *s)
 }
 
 
-ssize_t imgc_decompress_block(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen)
-{
-    if (len < 2)
-        /* input too small */
-        return -1;
-
-    uint32_t size = le16toh(*(const uint16_t *)buf);
-    buf += 2;
-    if (size & 0x8000) {
-        if (len < 4)
-            /* input too small */
-            return -1;
-        size &= 0x7FFF;
-        size |= le16toh(*(const uint16_t *)buf) << 15;
-        buf += 2;
-    }
-
-    if (!out)
-        return size;
-
-    if (size > outlen)
-        /* output too small */
-        return -2;
-
-    return lzo_decompress(buf, len - 2 - 2 * (size > 0x7FFF), out, outlen);
-}
-
 int imgc_parse(const uint8_t *buf, size_t len, struct imgc_header *hdr)
 {
-    if (len < 0x600)
+    if (len < 0x521)
         return -1;
     memcpy(&hdr->software.name,    &buf[0x000], 0x100);
     memcpy(&hdr->software.version, &buf[0x100], 0x100);
@@ -93,4 +66,31 @@ int imgc_parse_block(const uint8_t *buf, size_t len, struct imgc_block_header *h
 
     hdr->size = le32toh(*(const uint32_t *)(buf + 4));
     return 1;
+}
+
+ssize_t imgc_decompress_block(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen)
+{
+    if (len < 2)
+        /* input too small */
+        return -1;
+
+    uint32_t size = le16toh(*(const uint16_t *)buf);
+    buf += 2;
+    if (size & 0x8000) {
+        if (len < 4)
+            /* input too small */
+            return -1;
+        size &= 0x7FFF;
+        size |= le16toh(*(const uint16_t *)buf) << 15;
+        buf += 2;
+    }
+
+    if (!out)
+        return size;
+
+    if (size > outlen)
+        /* output too small */
+        return -2;
+
+    return lzo_decompress(buf, len - 2 - 2 * (size > 0x7FFF), out, outlen);
 }
