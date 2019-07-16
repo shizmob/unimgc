@@ -185,8 +185,8 @@ static void usage(const char *prog)
 {
     printf("usage: %s [-ihvV] [IN] [OUT]\n", prog);
     puts("    -h \t show usage");
-    puts("    -v \t show version");
-    puts("    -V \t increase verbosity (level 1: progress, level 2: header dumps)");
+    puts("    -V \t show version");
+    puts("    -v \t increase verbosity (level 1: progress, level 2: header dumps)");
     puts("    -i \t only show image information, don't decompress");
     puts("    IN \t input file; defaults to standard input");
     puts("   OUT \t output file; defaults to standard output");
@@ -202,12 +202,12 @@ int main(int argc, char **argv)
             options.only_info = 1;
             break;
         case 'v':
+            options.verbose++;
+            break;
+        case 'V':
             printf("unimgc v%s\n", VERSION);
             puts("copyright (c) 2019 shiz; released under the WTFPL");
             exit(0);
-            break;
-        case 'V':
-            options.verbose++;
             break;
         case 'h':
             usage(argv[0]);

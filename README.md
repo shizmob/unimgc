@@ -26,16 +26,16 @@ with a few derivations making the bitstreams incompatible:
 ```
 usage: unimgc [-ihvV] [IN] [OUT]
     -h 	 show usage
-    -v 	 show version
-    -V 	 increase verbosity (level 1: progress, level 2: header dumps)
+    -V 	 show version
+    -v 	 increase verbosity (level 1: progress, level 2: header dumps)
     -i 	 only show image information, don't decompress
     IN 	 input file; defaults to standard input
    OUT 	 output file; defaults to standard output
 ```
 
-An example of a common invocation would be `unimgc -V foo.imgc foo.img` to decompress from and to regular files, showing progress while it's working.
+An example of a common invocation would be `unimgc -v foo.imgc foo.img` to decompress from and to regular files, showing progress while it's working.
 
-You can also use `unimgc` as part of a pipeline: `curl https://my.host/secret/game.imgc | unimgc -V | gzip -9c > game.img.gz`.
+You can also use `unimgc` as part of a pipeline: `curl https://my.host/secret/game.imgc | unimgc -v | gzip -9c > game.img.gz`.
 
 ## License
 
