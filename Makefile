@@ -1,3 +1,4 @@
+CPPFLAGS := -D_POSIX_C_SOURCE=200112L $(CPPFLAGS)
 CFLAGS := -std=c99 -O2 -Wall -Wextra -pedantic -Wno-unused-parameter $(CFLAGS)
 O = obj/
 

@@ -40,4 +40,3 @@ You can also use `unimgc` as part of a pipeline: `curl https://my.host/secret/ga
 ## License
 
 `unimgc` is licensed under the [WTFPL](http://www.wtfpl.net/txt/copying/); see the [LICENSE](LICENSE) file for details.
-The contents of [endian.h](endian.h) is licensed from Mathias Panzenböck, and released into the public domain.
