@@ -1,3 +1,6 @@
+#if !defined(UNIMGC_H_ENDIAN)
+#define UNIMGC_H_ENDIAN
+
 #include <stdint.h>
 
 /* portable le*toh() inspired by https://stackoverflow.com/a/2100549 */
@@ -23,3 +26,5 @@ static inline uint64_t le64toh(uint64_t n)
         |  ((uint64_t)p[3] << 24) | ((uint64_t)p[2] << 16)
         |  ((uint64_t)p[1] << 8)  | (uint64_t)p[0];
 }
+
+#endif /* !defined(UNIMGC_H_ENDIAN) */
