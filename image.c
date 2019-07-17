@@ -45,7 +45,7 @@ int imgc_parse(const uint8_t *buf, size_t len, struct imgc_header *hdr)
     hdr->image.unk1         = le64toh(*(uint64_t *)(buf + 0x510));
     hdr->image.unk2         = le64toh(*(uint64_t *)(buf + 0x518));
     hdr->image.unk3         = buf[0x520];
-    return 1;
+    return 0;
 }
 
 int imgc_parse_block(const uint8_t *buf, size_t len, struct imgc_block_header *hdr)
@@ -65,21 +65,21 @@ int imgc_parse_block(const uint8_t *buf, size_t len, struct imgc_block_header *h
         return -2;
 
     hdr->size = le32toh(*(const uint32_t *)(buf + 4));
-    return 1;
+    return 0;
 }
 
-ssize_t imgc_decompress_block(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen)
+size_t imgc_decompress_block(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen)
 {
     if (len < 2)
         /* input too small */
-        return -1;
+        return 0;
 
     uint32_t size = le16toh(*(const uint16_t *)buf);
     buf += 2;
     if (size & 0x8000) {
         if (len < 4)
             /* input too small */
-            return -1;
+            return 0;
         size &= 0x7FFF;
         size |= le16toh(*(const uint16_t *)buf) << 15;
         buf += 2;
@@ -90,7 +90,7 @@ ssize_t imgc_decompress_block(const uint8_t *buf, size_t len, uint8_t *out, size
 
     if (size > outlen)
         /* output too small */
-        return -2;
+        return 0;
 
     return lzo_decompress(buf, len - 2 - 2 * (size > 0x7FFF), out, outlen);
 }

@@ -54,4 +54,4 @@ int pascal_from_cstr(struct pascal_str *p, const char *s);
 
 int imgc_parse(const uint8_t *buf, size_t len, struct imgc_header *hdr);
 int imgc_parse_block(const uint8_t *buf, size_t len, struct imgc_block_header *hdr);
-ssize_t imgc_decompress_block(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen);
+size_t imgc_decompress_block(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen);

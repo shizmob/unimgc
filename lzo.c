@@ -1,7 +1,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <sys/types.h>
 #include "endian.h"
 
 #define min(a, b) ((a) > (b) ? (b) : (a))
@@ -49,7 +48,7 @@ static inline void lzo_copy_distance(uint8_t **out, ptrdiff_t dist, size_t n)
     *out = p;
 }
 
-int lzo_decompress(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen)
+size_t lzo_decompress(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen)
 {
     const uint8_t *p = buf, *end = buf + len, *oend = out + outlen;
     uint8_t *op = out;
@@ -106,7 +105,7 @@ int lzo_decompress(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen)
             continue;
         } else {
             /* this shouldn't happen */
-            return -1;
+            return 0;
         }
 
         length = min(length, oend - op);
@@ -115,5 +114,5 @@ int lzo_decompress(const uint8_t *buf, size_t len, uint8_t *out, size_t outlen)
         if (state > 0 && state < 4)
             lzo_copy(&op, &p, state);
     }
-    return 0;
+    return op - out;
 }

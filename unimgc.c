@@ -137,7 +137,7 @@ static void unimgc_data(struct imgc_header *hdr, FILE *in, FILE *out)
                     fatal(UNIMGC_ERROR_ALLOC, "could not allocate %zd bytes\n", dsz);
                 dsize = dsz;
             }
-            if (imgc_decompress_block(bbuf, sz, dbuf, dsz) < 0)
+            if (!imgc_decompress_block(bbuf, sz, dbuf, dsz))
                 fatal(UNIMGC_ERROR_CORRUPTED_DATA, "corrupted IMGC compressed block\n");
             if (fwrite(dbuf, 1, dsz, out) != dsz)
                 fatal(UNIMGC_ERROR_IO, "could not write %zd bytes to target file: %s\n", dsz, strerror(errno));
