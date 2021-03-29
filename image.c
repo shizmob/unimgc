@@ -15,19 +15,19 @@ char *pascal_to_cstr(struct pascal_str *p)
 /* initialize pascal string */
 int pascal_from_data(struct pascal_str *p, const char *d, size_t len)
 {
+    if (len + 1 > sizeof(p->data)) {
+        return 0;
+    }
     p->length = len;
-    strncpy(p->data, d, len);
+    memcpy(p->data, d, len);
+    p->data[len] = 0;
     return 1;
 }
 
 /* initialize owned pascal string from C string contents */
 int pascal_from_cstr(struct pascal_str *p, const char *s)
 {
-    size_t len = strlen(s);
-    if (len > 0xFF)
-        /* too big */
-        return 0;
-    return pascal_from_data(p, s, len);
+    return pascal_from_data(p, s, strlen(s));
 }
 
 
